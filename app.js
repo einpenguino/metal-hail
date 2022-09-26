@@ -1,121 +1,3 @@
-// // $(() => {
-// //     const canvas = $('#myCanvas').prop('outerHTML');
-// //     const ctx = canvas.getContext('2d');
-// //     // ctx.beginPath();
-// //     // ctx.rect(20, 40, 50, 50);
-// //     // ctx.fillStyle = "#FF0000";
-// //     // ctx.fill();
-// //     // ctx.closePath();
-
-// // }
-// // );
-
-// const canvas = document.getElementById("myCanvas");
-// const ctx = canvas.getContext("2d");
-
-// // // --Render objects in canvas
-// // ctx.beginPath();
-// // ctx.rect(30, 20, 50, 50);
-// // ctx.fillStyle = "#FF0000";
-// // ctx.fill();
-// // ctx.closePath();
-
-// // ctx.beginPath();
-// // ctx.arc(240, 160, 20, 0, Math.PI * 2, false);
-// // ctx.fillStyle = "green";
-// // ctx.fill();
-// // ctx.closePath();
-
-// // ctx.beginPath();
-// // ctx.rect(160, 10, 100, 40);
-// // ctx.strokeStyle = "rgba(0, 0, 255, 0.5)";
-// // ctx.stroke();
-// // ctx.closePath();
-
-// // -- Drawing Loop
-// let x = canvas.width / 2;
-// let y = canvas.height - 30;
-// let ballWidth = 10;
-// let dx = 2;
-// let dy = -2;
-// let paddleHeight = 10;
-// let paddleWidth = 75;
-// let paddleX = (canvas.width - paddleWidth) / 2
-
-// let rightPressed = false;
-// let leftPressed = false;
-
-// document.addEventListener('keydown', keyDownHandler, false)
-// document.addEventListener('keyup', keyUpHandler, false)
-
-// function keyDownHandler(e) {
-//     if (e.key === "Right" || e.key === "ArrowRight") {
-//       rightPressed = true;
-//     } else if (e.key === "Left" || e.key === "ArrowLeft") {
-//       leftPressed = true;
-//     }
-// }
-  
-//   function keyUpHandler(e) {
-//     if (e.key === "Right" || e.key === "ArrowRight") {
-//       rightPressed = false;
-//     } else if (e.key === "Left" || e.key === "ArrowLeft") {
-//       leftPressed = false;
-//     }
-// }
-  
-
-// function drawPaddle() {
-//     ctx.beginPath();
-//     ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
-//     ctx.fillStyle = "#0095DD";
-//     ctx.fill();
-//     ctx.closePath();
-// }
-
-// function drawBall() {
-//     ctx.beginPath();
-//     ctx.arc(x, y, ballWidth, 0, Math.PI * 2);
-//     ctx.fillStyle = "#0095DD";
-//     ctx.fill();
-//     ctx.closePath();
-// }
-  
-// function draw() {
-// ctx.clearRect(0, 0, canvas.width, canvas.height);
-// drawBall();
-// if ( x + ballWidth > canvas.width | x < ballWidth) dx = -dx
-// // if (y + ballWidth > canvas.height | y < ballWidth) dy = -dy
-// if (y < ballWidth) dy = -dy
-
-// if (rightPressed) {
-//     paddleX += 4;
-//   } else if (leftPressed) {
-//     paddleX -= 4;
-// } 
-// if (rightPressed) {
-// paddleX = Math.min(paddleX + 7, canvas.width - paddleWidth);
-// } else if (leftPressed) {
-// paddleX = Math.max(paddleX - 7, 0);
-// }
-// drawPaddle();
-
-// // Game stop condition
-// if (y + dy > canvas.height - paddleHeight) {
-//     if (x > paddleX && x < paddleX + paddleWidth) dy = -dy
-//     else{
-//         alert('Game Over');
-//         document.location.reload();
-//     }
-    
-// } else requestAnimationFrame(draw)
-// x += dx;
-// y += dy;
-// // console.log(x, y)
-// }
-
-// // setInterval(draw, 10);
-// requestAnimationFrame(draw)
 class GameStats {
     constructor(numAssets, numCannons, spawnInterval){
         this.score = 0;
@@ -151,7 +33,7 @@ class Asset {
         this.isDestroyed = 0;
     }
     draw() {
-        // this.checkProximity()
+        this.checkProximity()
         if (this.isDestroyed === 0){
         ctx.beginPath();
         ctx.rect(this.assetX - this.width / 2, this.assetY - this.height, this.width, this.height);
@@ -392,7 +274,7 @@ canvas.addEventListener('mousedown', function(e) {
     // console.log(`xPos ${e.clientX - canvas.getBoundingClientRect().left}, yPos ${e.clientY - canvas.getBoundingClientRect().top}, angle ${c1.angle}`)
 })
 
-let initialiseGame = new GameStats(6, 1, 1000);
+let initialiseGame = new GameStats(6, 1, 2500);
 initialiseGame.populateBuildings()
 initialiseGame.generateMissileTargets()
 // let targetArr = initialiseGame.generateMissileTargets()
