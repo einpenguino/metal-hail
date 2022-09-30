@@ -1,15 +1,14 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100&display=swap');
-
 * {
   padding: 0;
   margin: 0;
+  font-family: 'Silkscreen', cursive;
 }
 canvas {
   /* background: #eee; */
   background-image: linear-gradient(#506886, #eee);
   display: block;
   margin: 0 auto;
-  border-radius: 20px;
+  /* border-radius: 20px; */
 }
   
 #Score{
@@ -20,4 +19,88 @@ canvas {
   -ms-user-select: none; /* IE 10 and IE 11 */
   user-select: none; /* Standard syntax */
 
+}
+
+.difficulty_button {
+  /* display: inline-block; */
+  /* margin: 50px 40%; */
+  padding: 50px;
+  /* width: 100% */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.difficulty-button{
+  font-size: 20px;
+}
+
+#StartGameButton {
+  display: block;
+  margin:auto;
+  font-size: 20px;
+}
+
+#title {
+  display: block;
+  position: absolute;
+  top: 0px;
+  text-align: center;
+  width: 100%;
+}
+#instructions{
+  display: block;
+  /* position: absolute; */
+  /* top: 70%; */
+  text-align: center;
+  /* width: 100%; */
+}
+
+#gamepage {
+  position: absolute;
+  /* left: 0px; */
+  top: 0px;
+  margin: auto;
+  width: 100%
+}
+
+#startCanvas {
+  /* position: absolute; */
+  /* top: 0px; */
+  margin: auto;
+  width: 100%;
+  /* opacity: 80%; */
+  /* z-index: 2; */
+}
+
+#container {
+  /* z-index: 1; */
+  position: absolute;
+  padding: 0px 30%;
+  top: 10vw;
+  /* width:100% */
+}
+
+#difficulty-explanation{
+  text-align: center;
+}
+
+#reg-exp{
+  position: relative;
+  bottom: 1.5vw;
+}
+
+#insane-exp{
+  position: relative;
+  bottom: 2.5vw;
+}
+
+#game-menu{
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
+}
+
+#game-menu > button {
+  font-size: 20px;
 }

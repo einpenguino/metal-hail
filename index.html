@@ -4,15 +4,53 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Metal-Rain</title>
+    <title>Metal-Hail</title>
     <link rel = "stylesheet" href = "main.css"> 
     <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
     <!-- <script src = "app.js" charset="UTF-8"></script> -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Silkscreen&display=swap');
+    </style>
     
 </head>
 <body>
-    <canvas id="myCanvas" width="1920" height="1080"></canvas>
-    <h1 id = 'Score'>Score: 0</h1>
-    <script src = "app.js" charset="UTF-8"></script>
+    <div id="startpage" style="visibility : visible">
+        <canvas id="startCanvas" width="1920" height="1080" style="visibility : visible"></canvas>
+        <div class = 'title'>
+            <h1 id = 'title'>
+                METAL-HAIL
+            </h1>
+        </div>
+        <div id = 'container'>
+            <div class = 'instructions'>
+                <h3 id = 'instructions'>
+                    Shoot down the orange projectiles before they destroy the green boxes!<br>Shooting consumes score, so shoot wisely!
+                </h3>
+            </div>
+            <div class = 'difficulty_button'>
+                <button type="button" class = 'difficulty-button' id="easybutton">Easy</button>
+                <button type="button" class = 'difficulty-button' id="regularbutton">Regular</button>
+                <button type="button" class = 'difficulty-button' id="insanebutton">Insane</button>
+            </div>
+            <div id = 'difficulty-explanation'>
+                <h3 id = 'easy-exp' style="visibility : hidden">I want to be fully immersed in the story! Free Shots!</h3>
+                <h3 id = 'reg-exp' style="visibility : visible">The regular experience</h3>
+                <h1 id = 'insane-exp' style="visibility : hidden">CUE THE DOOM MUSIC</h1>
+            </div>
+            <button type="button" id="StartGameButton">Start Game</button>
+        </div>
+        
+    </div>
+    <div id="gamepage" style="visibility : hidden">
+        <canvas id="myCanvas" width="1920" height="1080" style="visibility : hidden"></canvas>
+        <div id = 'game-menu'>
+            <h1 id = 'Score'>Score: 0</h1>
+            <button type="button" id="pause_button">Pause</button>
+            <button type="button" id="gmode">Gmode Activate!</button>
+        </div>
+        
+        <script src = "app.js" charset="UTF-8"></script>
+    </div>
+        
 </body>
 </html>

@@ -1,3 +1,27 @@
+class GameSizing{
+    constructor (){
+        this.windowWidth = window.innerWidth;
+        this.windowHeight = window.innerHeight;
+        this.aspectRatio = 16/9 //window Width / window Height
+        this.gap = 60
+    }
+    updateWindow() {
+        this.windowWidth = window.innerWidth;
+        this.windowHeight = window.innerHeight;
+        if (this.windowHeight / 9 < this.windowWidth / 16) { 
+            document.getElementById('myCanvas').setAttribute('width', Math.floor((this.windowHeight - this.gap) * this.aspectRatio))
+            document.getElementById('myCanvas').setAttribute('height', Math.floor(this.windowHeight - this.gap))
+            document.getElementById('startCanvas').setAttribute('width', Math.floor((this.windowHeight - this.gap) * this.aspectRatio))
+            document.getElementById('startCanvas').setAttribute('height', Math.floor(this.windowHeight - this.gap))
+        } else {
+            document.getElementById('myCanvas').setAttribute('width', Math.floor(this.windowWidth - (this.gap / this.aspectRatio)))
+            document.getElementById('myCanvas').setAttribute('height',Math.floor((this.windowWidth / this.aspectRatio) - this.gap))
+            document.getElementById('startCanvas').setAttribute('width', Math.floor(this.windowWidth - (this.gap / this.aspectRatio)))
+            document.getElementById('startCanvas').setAttribute('height',Math.floor((this.windowWidth / this.aspectRatio) - this.gap))
+        }
+    }
+} 
+
 class GameStats {
     constructor(numAssets, numCannons, spawnInterval){
         this.score = 0;
@@ -22,6 +46,7 @@ class GameStats {
         }
         this.targetArr = targetArray
     }
+    
 }
 class Asset {
     constructor(name, assetX, assetY, width, height){
@@ -33,7 +58,7 @@ class Asset {
         this.isDestroyed = 0;
     }
     draw() {
-        this.checkProximity()
+        if (godMode === 0) this.checkProximity()
         if (this.isDestroyed === 0){
         ctx.beginPath();
         ctx.rect(this.assetX - this.width / 2, this.assetY - this.height, this.width, this.height);
@@ -47,18 +72,18 @@ class Asset {
             if (Math.abs(this.assetX - projectiles[exp].projX) <= (projectiles[exp].explosionRadius + this.height) && Math.abs(this.assetY - projectiles[exp].projY) <= (projectiles[exp].explosionRadius + this.height)) {
                 this.isDestroyed = 1
                 delete assets[this.name]
-                initialiseGame.generateMissileTargets()
+                gameObj['initialiseGame'].generateMissileTargets()
             }
         }
     }
 }
 
 class Cannon {
-    constructor (cannonX, cannonY, bulletType, ammo){
+    constructor (cannonX, cannonY){
         this.cannonX = cannonX;
         this.cannonY = cannonY;
-        this.bulletType = bulletType;
-        this.ammo = ammo;
+        this.bulletType = '';
+        this.ammoCost = 5;
         this.cannonLength = 75;
         this.cannonWidth = 10;
         this.angle = 0;
@@ -69,30 +94,22 @@ class Cannon {
         this.yPos = cannonY - this.cannonWidth;
     }
     shoot() {
-        // this.ammo -= 1
+        if (gameObj['initialiseGame'].score >= this.ammoCost){
         projectiles[projectilesCounter] = new Projectile(projectilesCounter, 10, 'firebrick', 60, 0.2, this.cannonX, this.cannonY, clickX, clickY);
         projectilesCounter += 1;
-        initialiseGame.score -= 5
+        if (isEasy === 0 && godMode === 0) {
+            gameObj['initialiseGame'].score -= this.ammoCost
+        }
     }
-    draw(){ //Revise drawing method, additional cannons pivot in the midpoint  between cannons, breaks rotation
-        this.updateCannon(x, y);
-        // ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+    draw(){
         ctx.beginPath();
-        
-        // ctx.translate(this.xPos, (this.yPos + this.cannonWidth/2))
-        // ctx.rotate(-this.angleRotate)
-        // ctx.translate(-this.xPos, -(this.yPos + this.cannonWidth/2))
         ctx.rect(this.xPos, this.yPos, this.cannonLength, this.cannonWidth);
         ctx.fillStyle = 'rgb( 20, 20, 30)';
         ctx.fill();
         ctx.closePath();
-
-        // ctx.beginPath();
-        // ctx.arc(this.cannonX, this.cannonY, 2, 0, Math.PI * 2);
-        // ctx.fillStyle = "#0095DD";
-        // ctx.fill();
-        // ctx.closePath();
     }
+    
     updateCannon(x, y){
         // this.angle = Math.atan((this.xPos - this.cannonX) / (this.yPos - this.cannonY));
         // this.angleRotate = Math.atan((x - this.cannonX) / (y + this.cannonY)) - this.angle;
@@ -126,11 +143,14 @@ class Projectile {
         this.distY = Math.abs(this.destY - cannonY);
         this.startX = cannonX;
         this.startY = cannonY;
+        this.trailX = 0;
+        this.trailY = 0;
+        this.trailAngle = 0;
+        this.trailLength = 100;
     }
     travel () {
         // this.checkProximity()
         if (Math.abs(this.startY - this.projY) >= this.distY || Math.abs(this.startX - this.projX) >= this.distX || this.explosionLogged === 1){
-            // if (this.explosionLogged === 0) explosions[this.name] = this.name
             this.dy = 0;
             this.dx = 0;
             this.explode();
@@ -142,7 +162,9 @@ class Projectile {
         else this.projX += this.dx;
         this.projY -= this.dy;
         this.drawProj(this.missileSize)
+        
         }
+        
     }
     explode (){
         explosions[this.name] = this.name
@@ -156,16 +178,13 @@ class Projectile {
         }
     }
     drawProj(size) {
-        // this.travel(clickX, clickY);
-        // this.explode();
         ctx.beginPath();
         ctx.arc(this.projX, this.projY, size, 0, Math.PI * 2);
         ctx.fillStyle = this.colour;
         ctx.fill();
-        ctx.closePath();
-    }
-    drawTail(){
+        ctx.stroke();
         
+        ctx.closePath();
     }
     rainMissile(){
         this.startX = Math.floor(Math.random() * canvas.width)
@@ -184,10 +203,18 @@ class Projectile {
 }
 
 class Enemy extends Projectile {
+    drawProj(size) {
+        
+        ctx.beginPath();
+        ctx.arc(this.projX, this.projY, size, 0, Math.PI * 2);
+        ctx.fillStyle = this.colour;
+        ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+    }
     travel () {
         this.checkProximity()
         if (Math.abs(this.startY - this.projY) >= this.distY || Math.abs(this.startX - this.projX) >= this.distX || this.explosionLogged === 1){
-            // if (this.explosionLogged === 0) explosions[this.name] = this.name
             this.dy = 0;
             this.dx = 0;
             this.explode();
@@ -201,13 +228,29 @@ class Enemy extends Projectile {
         this.drawProj(this.missileSize)
         }
     }
+    drawTail(){
+        this.trailLength = gameSizing.windowHeight / 15;
+        
+        if(this.startX < this.destX){ //Moving diag right, clockwise rad as positive
+            this.trailAngle = Math.PI + Math.atan(this.dy / this.dx)
+
+        } else { //Moving diag left
+            this.trailAngle = Math.atan((-this.dy) / (this.dx))
+        }
+        this.trailX = Math.cos(this.trailAngle) * this.trailLength + this.projX;
+        this.trailY = Math.sin(this.trailAngle) * this.trailLength + this.projY;
+        ctx.beginPath();
+        ctx.moveTo(this.projX, this.projY)
+        ctx.lineTo(this.trailX, this.trailY)
+        ctx.strokeStyle = this.colour
+        ctx.stroke()
+    }
 }
 
 function getCursorPosition(canvas, event) {
     const rect = canvas.getBoundingClientRect()
     const xCoo = event.clientX - rect.left
     const yCoo = event.clientY - rect.top
-    // console.log("x: " + xCoo + " y: " + yCoo)
     x = xCoo;
     y = yCoo;
 }
@@ -216,15 +259,14 @@ function getClickPosition(canvas, event) {
     const rect = canvas.getBoundingClientRect()
     const clickXCoo = event.clientX - rect.left
     const clickYCoo = event.clientY - rect.top
-    // console.log("x: " + xCoo + " y: " + yCoo)
     clickX = clickXCoo;
     clickY = clickYCoo;
 }
 
+
+
 const mainLoop = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // c1.draw()
     for (buildings of Object.keys(assets)){
         assets[buildings].draw()
     }
@@ -234,59 +276,115 @@ const mainLoop = () => {
     if (Object.keys(assets).length === 1) {
         alert('You Lose!')
         document.location.reload()
-    } else window.requestAnimationFrame(mainLoop)
-    document.querySelectorAll("#Score")[0].innerHTML = `Score: ${initialiseGame.score}`
-    // console.log(projectiles)
-    // console.log(explosions)
-    // for (exp of Object.keys(explosions)){
-    //     try{
-    //     // console.log(projectiles[exp].destX, projectiles[exp].destY, projectiles[exp].explosionRadius)
-    //     } catch {
-    //     }
-    // }
-    
-    // c2.draw()
-    // console.log(projectiles)
-    
-    // console.log(`xPos ${c1.xPos}, yPos ${c1.yPos}, angle ${c1.angle}`)
+    } else {
+        if (pauseGame === 0) window.requestAnimationFrame(mainLoop)
+    }
+    document.querySelectorAll("#Score")[0].innerHTML = `Score: ${gameObj['initialiseGame'].score}`
 }
 
 let x = 0;
 let y = 0;
 let clickX = 0;
 let clickY = 0;
+let pauseGame = 0;
+let isEasy = 0;
+let godMode = 0;
 let cannons = {};
 let assets = {};
 let projectiles = {};
 let explosions = {};
 let projectilesCounter = 0;
+let gameSizing = new GameSizing();
+let gameObj = {};
 const canvas = document.getElementById('myCanvas');
 const ctx = canvas.getContext('2d');
-// let targetArr = [canvas.width/6, canvas.width/6 * 2, canvas.width/6 * 3, canvas.width/6 * 4, canvas.width/6 * 5]
+
+
+window.addEventListener('resize', function(e) {
+    gameSizing.updateWindow()
+})
+
+document.getElementById('easybutton').addEventListener('click', ()=>{
+    document.getElementById('easy-exp').style.visibility = 'visible'
+    document.getElementById('reg-exp').style.visibility = 'hidden'
+    document.getElementById('insane-exp').style.visibility = 'hidden'
+})
+
+document.getElementById('regularbutton').addEventListener('click', ()=>{
+    document.getElementById('easy-exp').style.visibility = 'hidden'
+    document.getElementById('reg-exp').style.visibility = 'visible'
+    document.getElementById('insane-exp').style.visibility = 'hidden'
+})
+
+document.getElementById('insanebutton').addEventListener('click', ()=>{
+    document.getElementById('easy-exp').style.visibility = 'hidden'
+    document.getElementById('reg-exp').style.visibility = 'hidden'
+    document.getElementById('insane-exp').style.visibility = 'visible'
+})
+
+document.getElementById('StartGameButton').addEventListener('click', ()=>{
+
+    document.getElementById("startpage").style.visibility = 'hidden'
+    document.getElementById("startCanvas").style.visibility = 'hidden'
+    document.getElementById("gamepage").style.visibility = 'visible'
+    document.getElementById("myCanvas").style.visibility = 'visible'
+
+    if (document.getElementById('easy-exp').style.visibility === 'visible') {
+        isEasy = 1
+        gameObj['initialiseGame'] = new GameStats(4, 1, 3000);
+    }
+    else if (document.getElementById('reg-exp').style.visibility === 'visible') gameObj['initialiseGame'] = new GameStats(6, 1, 2000);
+    else {
+        isEasy = 1
+        gameObj['initialiseGame'] = new GameStats(10, 1, 300);
+    }
+    
+    gameObj['initialiseGame'].populateBuildings()
+    gameObj['initialiseGame'].generateMissileTargets()
+    setInterval(() => {
+        if (document.getElementById('myCanvas').style.visibility === 'visible'){
+            if (pauseGame === 0){
+                let randDestX = gameObj['initialiseGame'].targetArr[Math.floor(Math.random() * gameObj['initialiseGame'].targetArr.length)]
+                new Enemy(projectilesCounter, 1.5, "orange", 50, 0.1,  Math.floor(Math.random() * canvas.width), 0, randDestX, assets['c1'].cannonY).rainMissile()
+                gameObj['initialiseGame'].score += 1 * Object.keys(assets).length
+            }
+        }
+    }
+    
+    , gameObj['initialiseGame'].spawnInterval)
+    window.requestAnimationFrame(mainLoop)
+})
+
 canvas.addEventListener('mousemove', function(e) {
     getCursorPosition(canvas, e)
 })
 canvas.addEventListener('mousedown', function(e) {
-    getClickPosition(canvas, e),
-    assets['c1'].shoot()
-    // new Enemy(projectilesCounter, 2, 50, 0.1,  Math.floor(Math.random() * canvas.width), 0, c1.cannonX, c1.cannonY).rainMissile()
-    // c1.shoot(e.clientX - canvas.getBoundingClientRect().left, e.clientY - canvas.getBoundingClientRect().top)
-    // console.log(`xPos ${e.clientX - canvas.getBoundingClientRect().left}, yPos ${e.clientY - canvas.getBoundingClientRect().top}, angle ${c1.angle}`)
+    getClickPosition(canvas, e)
+    if (pauseGame === 0) assets['c1'].shoot()
 })
 
-let initialiseGame = new GameStats(6, 1, 2500);
-initialiseGame.populateBuildings()
-initialiseGame.generateMissileTargets()
-// let targetArr = initialiseGame.generateMissileTargets()
-setInterval(() => {
-    // new Enemy(projectilesCounter, 2, "orange", 50, 0.1,  Math.floor(Math.random() * canvas.width), 0, c1.cannonX, c1.cannonY).rainMissile()
-    let randDestX = initialiseGame.targetArr[Math.floor(Math.random() * initialiseGame.targetArr.length)]
-    new Enemy(projectilesCounter, 1.5, "orange", 50, 0.1,  Math.floor(Math.random() * canvas.width), 0, randDestX, assets['c1'].cannonY).rainMissile()
-    initialiseGame.score += 1 * Object.keys(assets).length
-    
 
-}
-, initialiseGame.spawnInterval)
+document.getElementById('pause_button').addEventListener('click', () => {
+    if (pauseGame === 0 && canvas.style.visibility === 'visible')  {
+        pauseGame = 1
+        document.getElementById('pause_button').innerText = 'Resume'
+    }
+    else if (pauseGame === 1 && canvas.style.visibility === 'visible') {
+        pauseGame = 0
+        document.getElementById('pause_button').innerText = 'Pause'
+        window.requestAnimationFrame(mainLoop) // Restart game
+    }
+})
 
-window.requestAnimationFrame(mainLoop)
-// setInterval(mainLoop, 10)
+document.getElementById('gmode').addEventListener('click', () => {
+    if (godMode === 0 && canvas.style.visibility === 'visible')  {
+        godMode = 1
+        document.getElementById('gmode').innerText = 'Immortality is Fleeting'
+    }
+    else if (godMode === 1 && canvas.style.visibility === 'visible') {
+        godMode = 0
+        document.getElementById('gmode').innerText = 'Gmode Activate!'
+    }
+})
+
+gameSizing.updateWindow()
